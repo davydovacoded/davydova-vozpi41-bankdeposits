@@ -1,0 +1,16 @@
+config/config.php
+.env
+.env.*
+!.env.example
+.DS_Store
+.idea/
+.vscode/
+*.log
+tmp/
+temp/
+outputs/
+*.zip
+*.tar
+*.tar.gz
+*.tmp
+*.bak

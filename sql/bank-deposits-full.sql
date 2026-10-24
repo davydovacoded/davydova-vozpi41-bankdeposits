@@ -1,0 +1,99 @@
+SET NAMES utf8mb4;
+
+CREATE TABLE Client (
+    id_client INT NOT NULL AUTO_INCREMENT,
+    surname VARCHAR(50) NOT NULL,
+    name VARCHAR(50) NOT NULL,
+    patronymic VARCHAR(50) NOT NULL,
+    passport VARCHAR(20) NOT NULL,
+    phone VARCHAR(20) NOT NULL,
+    PRIMARY KEY (id_client)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE Deposit (
+    id_deposit INT NOT NULL AUTO_INCREMENT,
+    name VARCHAR(50) NOT NULL,
+    term INT NOT NULL,
+    interest_rate DECIMAL(5,2) NOT NULL,
+    PRIMARY KEY (id_deposit)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE Account (
+    id_account INT NOT NULL AUTO_INCREMENT,
+    account_number VARCHAR(20) NOT NULL,
+    open_date DATE NOT NULL,
+    close_date DATE NULL,
+    amount DECIMAL(12,2) NOT NULL,
+    id_client INT NOT NULL,
+    id_deposit INT NOT NULL,
+    PRIMARY KEY (id_account),
+    CONSTRAINT fk_account_client
+        FOREIGN KEY (id_client)
+        REFERENCES Client (id_client)
+        ON UPDATE CASCADE
+        ON DELETE RESTRICT,
+    CONSTRAINT fk_account_deposit
+        FOREIGN KEY (id_deposit)
+        REFERENCES Deposit (id_deposit)
+        ON UPDATE CASCADE
+        ON DELETE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+INSERT INTO Client (id_client, surname, name, patronymic, passport, phone) VALUES
+    (1, 'Иванов', 'Алексей', 'Сергеевич', '4510123456', '+79991234567'),
+    (2, 'Петрова', 'Мария', 'Игоревна', '4510234567', '+79992345678'),
+    (3, 'Смирнов', 'Дмитрий', 'Андреевич', '4510345678', '+79993456789'),
+    (4, 'Кузнецова', 'Елена', 'Викторовна', '4510456789', '+79994567890'),
+    (5, 'Соколов', 'Максим', 'Олегович', '4510567890', '+79995678901'),
+    (6, 'Попова', 'Анна', 'Дмитриевна', '4510678901', '+79996789012'),
+    (7, 'Васильев', 'Никита', 'Павлович', '4510789012', '+79997890123'),
+    (8, 'Морозова', 'Ольга', 'Алексеевна', '4510890123', '+79998901234'),
+    (9, 'Новиков', 'Кирилл', 'Евгеньевич', '4510901234', '+79999012345'),
+    (10, 'Фёдорова', 'Татьяна', 'Михайловна', '4511012345', '+79990123456');
+
+INSERT INTO Deposit (id_deposit, name, term, interest_rate) VALUES
+    (1, 'Накопительный', 6, 7.50),
+    (2, 'Доходный', 12, 8.20),
+    (3, 'Премиум', 24, 9.10),
+    (4, 'Пенсионный', 18, 7.80),
+    (5, 'Универсальный', 36, 8.50),
+    (6, 'Стабильный', 12, 7.90),
+    (7, 'Максимум', 48, 9.50),
+    (8, 'Комфорт', 3, 6.80),
+    (9, 'Инвестиционный', 60, 10.20),
+    (10, 'Классический', 9, 7.30);
+
+INSERT INTO Account (
+    id_account,
+    account_number,
+    open_date,
+    close_date,
+    amount,
+    id_client,
+    id_deposit
+) VALUES
+    (1, '40817810000000000001', '2024-01-15', NULL, 150000.00, 1, 2),
+    (2, '40817810000000000002', '2024-02-10', NULL, 250000.50, 2, 1),
+    (3, '40817810000000000003', '2024-03-05', NULL, 98000.75, 3, 4),
+    (4, '40817810000000000004', '2024-01-20', NULL, 320000.00, 4, 3),
+    (5, '40817810000000000005', '2024-04-11', NULL, 450000.25, 5, 5),
+    (6, '40817810000000000006', '2024-05-18', NULL, 87000.00, 6, 8),
+    (7, '40817810000000000007', '2024-06-01', NULL, 600000.00, 7, 7),
+    (8, '40817810000000000008', '2024-02-27', NULL, 110500.90, 8, 6),
+    (9, '40817810000000000009', '2024-03-14', NULL, 75000.00, 9, 10),
+    (10, '40817810000000000010', '2024-04-30', NULL, 920000.40, 10, 9);
+
+UPDATE Account AS account
+INNER JOIN Deposit AS deposit
+    ON deposit.id_deposit = account.id_deposit
+SET account.close_date = DATE_ADD(
+    account.open_date,
+    INTERVAL deposit.term MONTH
+)
+WHERE account.close_date IS NULL;
+
+SELECT 'Client' AS table_name, COUNT(*) AS row_count FROM Client
+UNION ALL
+SELECT 'Deposit', COUNT(*) FROM Deposit
+UNION ALL
+SELECT 'Account', COUNT(*) FROM Account;
